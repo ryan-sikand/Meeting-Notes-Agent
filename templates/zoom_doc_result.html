@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Zoom Docs Result</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <a class="top-link" href="/">Back to runs</a>
+        <h1>Zoom Docs Result</h1>
+        <p>{{ url }}</p>
+      </header>
+
+      <section class="panel">
+        <h2>Inspection</h2>
+        <dl>
+          <dt>Document ID</dt>
+          <dd>{{ inspection.doc_id or "Unknown" }}</dd>
+          <dt>Title</dt>
+          <dd>{{ inspection.title or "Unknown" }}</dd>
+          <dt>Description</dt>
+          <dd>{{ inspection.description or "Unknown" }}</dd>
+          <dt>API Host</dt>
+          <dd>{{ inspection.api_host or "Unknown" }}</dd>
+          <dt>Cluster API Prefix</dt>
+          <dd>{{ inspection.file_cluster_api_prefix or "Unknown" }}</dd>
+          <dt>Embedded Content</dt>
+          <dd>{{ "Available" if inspection.has_embedded_content else "Not available" }}</dd>
+        </dl>
+      </section>
+
+      <section class="panel">
+        <h2>Result</h2>
+        {% if inspection.error %}
+          <p>{{ inspection.error }}</p>
+        {% elif inspection.has_embedded_content %}
+          <p>Zoom exposed text in the shared page and it can be processed.</p>
+          <pre>{{ inspection.content_text }}</pre>
+        {% else %}
+          <p>Zoom returned only the Docs web app shell. The document content requires authenticated Zoom Docs APIs or browser-session export access.</p>
+        {% endif %}
+      </section>
+    </main>
+  </body>
+</html>

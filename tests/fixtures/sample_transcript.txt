@@ -1,0 +1,9 @@
+2026-06-09 Acme Discovery
+
+Account: Acme Corp
+
+00:00:01
+Sarah Connor: Thanks for joining. We need better automation for renewal risk.
+Ryan Sikand: We can map that into a pilot tied to the Acme Expansion opportunity.
+Sarah Connor: Security review is the main blocker, and we need a path by July.
+Ryan Sikand: I will send next steps and schedule a technical workshop.

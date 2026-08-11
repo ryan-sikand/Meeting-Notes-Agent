@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tribble Meeting Notes"
+  short_description: "Sync Tribble transcripts into meeting notes"
+  default_prompt: "Use $tribble-meeting-notes to sync my latest Tribble transcripts and show me the meeting-note review links."

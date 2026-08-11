@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Meeting Notes Agent</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <h1>Meeting Notes Agent</h1>
+        <p>Turn Zoom transcripts and pasted meeting notes into structured recaps, follow-ups, and CRM-ready review runs.</p>
+      </header>
+
+      <section class="panel">
+        <h2>Upload Transcript</h2>
+        <form action="/process-upload" method="post" enctype="multipart/form-data" class="stack">
+          <label for="transcript">Transcript file</label>
+          <input id="transcript" name="transcript" type="file" accept=".txt,.vtt" required>
+          <button type="submit">Process Transcript</button>
+        </form>
+      </section>
+      <section class="panel">
+        <h2>Paste Transcript</h2>
+        <form action="/process-paste" method="post" class="stack wide-stack">
+          <label for="paste-title">Title</label>
+          <input
+            id="paste-title"
+            name="title"
+            type="text"
+            placeholder="Pablo & Ryan Sync"
+          >
+          <label for="transcript-text">Transcript text</label>
+          <textarea
+            id="transcript-text"
+            name="transcript_text"
+            rows="14"
+            placeholder="Paste Zoom transcript, chat, or copied meeting notes here"
+            required
+          ></textarea>
+          <button type="submit">Create Review Run</button>
+        </form>
+      </section>
+      <section class="panel">
+        <h2>Zoom Docs Link</h2>
+        <form action="/zoom-doc-result" method="get" class="stack">
+          <label for="zoom-doc-url">Shared Zoom Docs URL</label>
+          <input
+            id="zoom-doc-url"
+            name="url"
+            type="text"
+            value="https://hub.zoom.us/doc/7aiSow-LRIOqRCE6J-B9rQ?from=hub&skipCheck=1"
+            required
+          >
+          <button type="submit">Inspect Link</button>
+        </form>
+      </section>
+      <section>
+        <h2>Recent Runs</h2>
+        {% if runs %}
+          <table>
+            <thead>
+              <tr>
+                <th>Created</th>
+                <th>Transcript</th>
+                <th>Status</th>
+                <th>Match</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for run in runs %}
+                <tr>
+                  <td>{{ run.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+                  <td><a href="/review/{{ run.run_id }}">{{ run.transcript_filename }}</a></td>
+                  <td><span class="status-pill">{{ run.status.value }}</span></td>
+                  <td>{{ run.salesforce_match.opportunity_name or "No match" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>No runs yet.</p>
+        {% endif %}
+      </section>
+    </main>
+  </body>
+</html>

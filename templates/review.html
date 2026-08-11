@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Review {{ run.transcript_filename }}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <a class="top-link" href="/">Back to runs</a>
+        <h1>Review Meeting Notes</h1>
+        <p>{{ run.transcript_filename }} · <span class="status-pill">{{ run.status.value }}</span></p>
+      </header>
+
+      <section class="grid">
+        <article class="panel">
+          <h2>Meeting Summary</h2>
+          <p>{{ run.intelligence.executive_summary }}</p>
+          <h3>Attendees</h3>
+          {% if run.intelligence.attendees %}
+            <ul>
+              {% for attendee in run.intelligence.attendees %}
+                <li>{{ attendee.name or "Unknown" }}{% if attendee.email %} - {{ attendee.email }}{% endif %}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p>None captured.</p>
+          {% endif %}
+        </article>
+
+        <article class="panel">
+          <h2>Salesforce Match</h2>
+          <dl>
+            <dt>Status</dt>
+            <dd>{{ run.salesforce_match.match_status.replace("_", " ").title() }}</dd>
+            <dt>Account</dt>
+            <dd>{{ run.salesforce_match.account_name or "No match" }}</dd>
+            <dt>Opportunity</dt>
+            <dd>{{ run.salesforce_match.opportunity_name or "No match" }}</dd>
+            <dt>Confidence</dt>
+            <dd>{{ run.salesforce_match.confidence }}</dd>
+          </dl>
+          <h3>Reasons</h3>
+          <ul>
+            {% for reason in run.salesforce_match.reasons %}
+              <li>{{ reason }}</li>
+            {% endfor %}
+          </ul>
+          {% if run.salesforce_match.alternatives %}
+            <h3>Candidates for review</h3>
+            <ul>
+              {% for candidate in run.salesforce_match.alternatives[:3] %}
+                <li>
+                  {{ candidate.account_name or "Unknown Account" }} /
+                  {{ candidate.opportunity_name or "Unknown Opportunity" }}
+                  ({{ candidate.confidence }})
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </article>
+      </section>
+
+      <section class="panel">
+        <h2>Proposed Salesforce Updates</h2>
+        <pre>{{ run.proposed_salesforce_updates.model_dump_json(indent=2) }}</pre>
+      </section>
+
+      <section class="panel">
+        <h2>Proposed Quip Note</h2>
+        <div class="note-preview">{{ run.quip_note.html_content | safe }}</div>
+      </section>
+
+      <section class="actions">
+        <form action="/review/{{ run.run_id }}/approve-quip" method="post">
+          <input name="thread_id" type="text" placeholder="Existing Quip thread ID">
+          <button type="submit">Approve Quip Only</button>
+        </form>
+        <form action="/review/{{ run.run_id }}/approve-quip-salesforce-task" method="post">
+          <button type="submit">Approve Quip + Salesforce Task</button>
+        </form>
+        <form action="/review/{{ run.run_id }}/reject" method="post">
+          <button class="secondary" type="submit">Reject</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

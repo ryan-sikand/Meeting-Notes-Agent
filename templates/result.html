@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Run {{ run.run_id }}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <a class="top-link" href="/review/{{ run.run_id }}">Back to review</a>
+        <h1>Run Result</h1>
+        <p><span class="status-pill">{{ run.status.value }}</span></p>
+      </header>
+      <section class="panel">
+        <h2>Quip Result</h2>
+        <pre>{{ run.quip_result or {} }}</pre>
+      </section>
+      <section class="panel">
+        <h2>Salesforce Result</h2>
+        <pre>{{ run.salesforce_result or {} }}</pre>
+      </section>
+    </main>
+  </body>
+</html>

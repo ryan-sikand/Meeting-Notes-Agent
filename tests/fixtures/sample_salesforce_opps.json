@@ -1,0 +1,43 @@
+{
+  "contacts": [
+    {
+      "Id": "0031",
+      "Name": "Sarah Connor",
+      "Email": "sarah@acme.example",
+      "AccountId": "0011",
+      "account_name": "Acme Corp"
+    }
+  ],
+  "accounts": [
+    {
+      "Id": "0011",
+      "Name": "Acme Corp"
+    }
+  ],
+  "opportunities": [
+    {
+      "Id": "0061",
+      "Name": "Acme Expansion",
+      "AccountId": "0011",
+      "account_name": "Acme Corp",
+      "StageName": "Discovery",
+      "CloseDate": "2026-07-15",
+      "Amount": 125000,
+      "owner_name": "Ryan Sikand",
+      "NextStep": "Security review",
+      "LastModifiedDate": "2026-06-01T00:00:00.000+0000"
+    },
+    {
+      "Id": "0062",
+      "Name": "Acme Renewal",
+      "AccountId": "0011",
+      "account_name": "Acme Corp",
+      "StageName": "Proposal",
+      "CloseDate": "2027-01-15",
+      "Amount": 50000,
+      "owner_name": "Other Owner",
+      "NextStep": null,
+      "LastModifiedDate": "2026-05-01T00:00:00.000+0000"
+    }
+  ]
+}

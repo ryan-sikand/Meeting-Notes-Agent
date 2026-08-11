@@ -1,0 +1,1 @@
+"""Meeting notes agent package."""
