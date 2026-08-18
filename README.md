@@ -96,10 +96,15 @@ Shared Zoom Docs links such as `https://hub.zoom.us/doc/...` are not the same as
 location is `%APPDATA%\Tribble Desktop\tribble.db`.
 
 `tribble-sync --local` creates review runs without sending transcript text to an external
-service. It skips Tribble meeting IDs already stored in `data/runs`. Use `--limit 1` for only
-the newest unprocessed meeting or `--meeting-id <id>` for a specific meeting. Omit `--local`
-only when sending transcript text through the configured OpenAI API is explicitly intended.
-Use `--refresh` to regenerate existing Tribble drafts in place after note-generation changes.
+service. A transcript is eligible only after Tribble reports the recording as `completed`,
+sets `has_summary`, and exposes a parseable structured summary. Meetings that already have
+transcript rows but are still processing remain visible in `tribble-list` with
+`ready_for_sync=false` and are skipped by every sync mode. It also skips Tribble meeting IDs
+already stored in `data/runs`. Use `--limit 1` for only the newest unprocessed meeting or
+`--meeting-id <id>` for a specific meeting. Omit `--local` only when sending transcript text
+through the configured OpenAI API is explicitly intended. Use `--refresh` to regenerate
+existing Tribble drafts in place after note-generation changes; corrected meeting titles are
+preserved during local refresh.
 
 Codex uses its bundled document runtime to run `python -m app.sharepoint_docx_export`.
 The command writes Word documents under `out/sharepoint-docx`; `--run-id <id>` exports a

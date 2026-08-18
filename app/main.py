@@ -103,7 +103,10 @@ def main() -> None:
 
     tribble_sync_parser = subparsers.add_parser(
         "tribble-sync",
-        help="Create review runs for new Tribble Scribe transcripts.",
+        help=(
+            "Create review runs only after Tribble finishes the recording and "
+            "structured summary."
+        ),
     )
     tribble_sync_parser.add_argument("--meeting-id")
     tribble_sync_parser.add_argument(
@@ -119,7 +122,10 @@ def main() -> None:
     tribble_sync_parser.add_argument(
         "--refresh",
         action="store_true",
-        help="Regenerate existing Tribble review runs in place.",
+        help=(
+            "Regenerate an existing Tribble review run in place after the same "
+            "completion checks pass."
+        ),
     )
 
     subparsers.add_parser(
@@ -253,6 +259,9 @@ def tribble_list(
     client = TribbleClient(settings)
     meetings = client.list_transcribed_meetings(limit=limit)
     store = RunStore(settings)
+    readiness = {
+        meeting.id: client.ready_intelligence(meeting)[1] for meeting in meetings
+    }
     return {
         "database": str(client.db_path),
         "meetings": [
@@ -264,6 +273,8 @@ def tribble_list(
                 "recording_state": meeting.recording_state,
                 "has_summary": meeting.has_summary,
                 "transcript_lines": meeting.transcript_lines,
+                "ready_for_sync": readiness[meeting.id] is None,
+                "readiness_reason": readiness[meeting.id],
                 "already_processed": store.has_tribble_meeting_id(meeting.id),
             }
             for meeting in meetings
@@ -296,6 +307,16 @@ def tribble_sync(
         )
 
     for meeting in meetings:
+        tribble_intelligence, readiness_reason = client.ready_intelligence(meeting)
+        if readiness_reason:
+            skipped.append(
+                {
+                    "meeting_id": meeting.id,
+                    "reason": readiness_reason,
+                }
+            )
+            continue
+
         existing_run = store.find_by_tribble_meeting_id(meeting.id)
         if existing_run and not refresh:
             skipped.append(
@@ -309,9 +330,21 @@ def tribble_sync(
             break
 
         transcript_path = client.write_transcript_file(meeting)
-        structured_intelligence = (
-            client.structured_intelligence(meeting) if local_only else None
-        )
+        structured_intelligence = tribble_intelligence if local_only else None
+        if structured_intelligence is not None and existing_run is not None:
+            preserved = {
+                "meeting_title": existing_run.intelligence.meeting_title,
+            }
+            if (
+                existing_run.intelligence.customer_account_guess
+                and not structured_intelligence.customer_account_guess
+            ):
+                preserved["customer_account_guess"] = (
+                    existing_run.intelligence.customer_account_guess
+                )
+            structured_intelligence = structured_intelligence.model_copy(
+                update=preserved
+            )
         run = process_transcript(
             transcript_path,
             settings=settings,

@@ -64,14 +64,18 @@ Run all commands from the `Meeting-Notes-Agent` project root. Use `uv`; do not c
 
 - Treat `tribble.db` as read-only. The adapter uses SQLite URI `mode=ro` plus
   `PRAGMA query_only`.
-- Process only meetings with transcript entries.
+- Process only meetings with transcript entries after all three readiness checks pass:
+  `recording_state=completed`, `has_summary=1`, and a parseable structured summary. A
+  meeting with partial transcript rows is not finished and must be skipped. Do not bypass
+  this gate for scheduled or explicit syncs.
 - Deduplicate using `MeetingRun.tribble_meeting_id`.
 - Keep generated transcript files under ignored `data/tribble/`.
 - Preserve the app's approval gate: syncing creates draft review runs and never writes
   to Salesforce or Quip automatically. SharePoint upload is performed only when requested.
 - Use `--local` unless the user explicitly authorizes sending the selected transcript text
   through the configured OpenAI API.
-- Prefer Tribble's existing structured summary and action-item fields in local mode; fall
-  back to transcript heuristics only when those fields are absent.
+- Scheduled Tribble syncs require Tribble's structured recap to be ready. Transcript
+  heuristics remain available for manually processed local transcript files, but must not
+  be used to bypass Tribble's completion gate.
 - If the database is not found, report the configured path and explain that
   `TRIBBLE_DB_PATH` can override it.

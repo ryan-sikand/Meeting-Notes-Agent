@@ -25,6 +25,10 @@ class TribbleMeeting:
     has_summary: bool
     transcript_lines: int
 
+    @property
+    def recording_completed(self) -> bool:
+        return (self.recording_state or "").strip().casefold() == "completed"
+
     def local_date(self, timezone_name: str) -> str | None:
         if not self.date:
             return None
@@ -197,6 +201,21 @@ class TribbleClient:
                 actions,
             ),
         )
+
+    def ready_intelligence(
+        self,
+        meeting: TribbleMeeting,
+    ) -> tuple[MeetingIntelligence | None, str | None]:
+        """Return Tribble intelligence only after recording and summary processing finish."""
+        if not meeting.recording_completed:
+            return None, "recording_not_completed"
+        if not meeting.has_summary:
+            return None, "summary_not_ready"
+
+        intelligence = self.structured_intelligence(meeting)
+        if intelligence is None:
+            return None, "summary_content_not_ready"
+        return intelligence, None
 
     def write_transcript_file(self, meeting: TribbleMeeting) -> Path:
         entries = self.transcript_entries(meeting.id)
